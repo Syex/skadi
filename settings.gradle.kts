@@ -1,2 +1,2 @@
 rootProject.name = "skadi"
-include("skadi")
+include("skadi-lib", "sample")

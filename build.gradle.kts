@@ -2,9 +2,21 @@ plugins {
     kotlin("jvm") version "1.3.71"
 }
 
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath("com.android.tools.build:gradle:3.6.1")
+    }
+}
+
 allprojects {
     repositories {
-        mavenCentral()
+        jcenter()
+        google()
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java) {
