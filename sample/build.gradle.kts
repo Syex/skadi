@@ -14,14 +14,15 @@ android {
         versionCode = 1
         versionName = "1.0.0-SNAPSHOT"
     }
+}
 
-//    compileOptions {
-//        sourceCompatibility = JavaVersion.VERSION_1_8
-//        targetCompatibility = JavaVersion.VERSION_1_8
-//    }
+androidExtensions {
+    isExperimental = true
 }
 
 dependencies {
+    implementation(project(":skadi-lib"))
+
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Dependencies.coroutines}")
 
@@ -30,6 +31,10 @@ dependencies {
     val lifecycleVersion = "2.2.0"
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
+
+    implementation("androidx.constraintlayout:constraintlayout:2.0.0-beta4")
+
+    implementation("io.coil-kt:coil:0.9.5")
 }
 
 dependencies {

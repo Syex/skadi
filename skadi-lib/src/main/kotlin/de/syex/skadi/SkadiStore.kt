@@ -155,4 +155,11 @@ class SkadiStore<State, Action>(
         coroutineScope.launch { changeActor.send(change) }
     }
 
+    /**
+     * Performs a single action, not using the [reducer].
+     */
+    fun performAction(action: Action) {
+        performSideEffect(listOf(action))
+    }
+
 }
