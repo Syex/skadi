@@ -1,31 +1,48 @@
 package de.syex.skadi.sample
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.collect
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
-    private val movieAdapter by lazy { MovieAdapter() }
+    private val movieAdapter by lazy {
+        MovieAdapter(
+            onMovieClickListener = { viewModel.performViewEvent(MainViewEvent.MovieClicked(it)) }
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        viewModel = ViewModelProvider(this, MainViewModelProvider()).get(MainViewModel::class.java)
-        viewModel.stateLiveData.observe(this, Observer { renderState(it) })
 
         recyclerView.apply {
             adapter = movieAdapter
             addItemDecoration(
                 DividerItemDecoration(this@MainActivity, LinearLayoutManager.VERTICAL)
             )
+        }
+
+        viewModel = ViewModelProvider(this, MainViewModelProvider()).get(MainViewModel::class.java)
+        viewModel.stateLiveData.observe(this, Observer { renderState(it) })
+
+        // why are we not using the same pattern for signals? LiveData per design would emit the
+        // latest value again, that's not what we try to achieve with signals
+        lifecycleScope.launchWhenResumed {
+            viewModel.skadiStore.signalFlow.collect {
+                ensureActive()
+                handleSignal(it)
+            }
         }
     }
 
@@ -34,6 +51,14 @@ class MainActivity : AppCompatActivity() {
             is MainViewState.DisplayMovies -> {
                 progressBar.hide()
                 movieAdapter.movies = state.movies
+            }
+        }
+    }
+
+    private fun handleSignal(signal: MainViewSignal) {
+        when (signal) {
+            is MainViewSignal.ShowToast -> {
+                Toast.makeText(this, signal.text, Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -1,25 +1,17 @@
 package de.syex.skadi.sample
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import de.syex.skadi.SkadiChange
-import de.syex.skadi.SkadiState
-import de.syex.skadi.SkadiStore
-import de.syex.skadi.state
-import kotlinx.coroutines.flow.collect
+import de.syex.skadi.*
 
 class MainViewModel(
     private val loadMovies: LoadMoviesUseCase
 ) : ViewModel() {
 
-    val stateLiveData by lazy {
-        liveData {
-            skadiStore.stateFlow.collect { emit(it) }
-        }
-    }
+    val stateLiveData by lazy { skadiStore.stateFlow.asLiveData() }
 
-    private val skadiStore = SkadiStore<MainViewState, MainViewAction>(
+    val skadiStore = SkadiStore<MainViewState, MainViewAction, MainViewSignal>(
         initialState = MainViewState.Loading,
         reducer = { state, change ->
             when (state) {
@@ -28,7 +20,11 @@ class MainViewModel(
                 } else {
                     throw IllegalStateException()
                 }
-                else -> throw IllegalStateException()
+                is MainViewState.DisplayMovies -> if (change is MainViewEvent.MovieClicked) {
+                    state.signal(MainViewSignal.ShowToast(change.movie.movieName))
+                } else {
+                    throw IllegalStateException()
+                }
             }
         },
         actions = { action ->
@@ -46,6 +42,10 @@ class MainViewModel(
         skadiStore.performAction(MainViewAction.LoadMovies)
     }
 
+    fun performViewEvent(event: MainViewEvent) {
+        skadiStore.perform(event)
+    }
+
 }
 
 sealed class MainViewAction {
@@ -57,7 +57,7 @@ sealed class MainViewAction {
 
 sealed class MainViewEvent : SkadiChange {
 
-    data class MovieClicked(val movieName: String) : MainViewEvent()
+    data class MovieClicked(val movie: MovieModel) : MainViewEvent()
 
 }
 
@@ -66,4 +66,9 @@ sealed class MainViewState : SkadiState {
     object Loading : MainViewState()
 
     data class DisplayMovies(val movies: List<MovieModel>) : MainViewState()
+}
+
+sealed class MainViewSignal {
+
+    data class ShowToast(val text: String) : MainViewSignal()
 }

@@ -8,7 +8,9 @@ import coil.api.load
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_movie.*
 
-class MovieAdapter : RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
+class MovieAdapter(
+    private val onMovieClickListener: ((MovieModel) -> Unit)
+) : RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
 
     var movies: List<MovieModel> = emptyList()
         set(value) {
@@ -24,9 +26,11 @@ class MovieAdapter : RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
 
     override fun getItemCount(): Int = movies.size
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.movieTitle.text = movies[position].movieName
-        holder.moviePosterView.load(movies[position].moviePosterUrl)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) = with(holder) {
+        val movie = movies[position]
+        movieTitle.text = movie.movieName
+        moviePosterView.load(movie.moviePosterUrl)
+        itemView.setOnClickListener { onMovieClickListener(movie) }
     }
 
     class ViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView),

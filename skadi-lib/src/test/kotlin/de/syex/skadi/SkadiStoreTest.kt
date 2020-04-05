@@ -1,10 +1,8 @@
 package de.syex.skadi
 
 import com.google.common.truth.Truth.assertThat
+import dev.olog.flow.test.observer.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
@@ -14,7 +12,7 @@ internal class StoreTest {
 
     private val testCoroutineScope = TestCoroutineScope()
 
-    private val store = SkadiStore(
+    private val store = SkadiStore<TestState, TestAction, TestSignal>(
         initialState = TestState.Init,
         reducer = { state: TestState, change: SkadiChange ->
             when {
@@ -27,7 +25,12 @@ internal class StoreTest {
                         change.data
                     )
                 }
-                state is TestState.DisplayData -> state.same()
+                state is TestState.DisplayData -> {
+                    when (change) {
+                        TestViewAction.ButtonClicked -> state.signal(TestSignal.ShowMessage)
+                        else -> state.same()
+                    }
+                }
                 else -> throw IllegalStateException()
             }
         },
@@ -44,24 +47,48 @@ internal class StoreTest {
 
     private val testUseCase = TestUseCase()
 
-    private val stateFlow by lazy { store.stateFlow }
-
     @Test
-    fun `performing ViewAction RequestData goes to Loading state and performs LoadData action`() = runBlockingTest {
+    fun `performing ViewAction RequestData goes to Loading state, performs LoadData action, then moves to DisplayData`() =
+        runBlockingTest {
         store.perform(TestViewAction.RequestData)
 
         assertThat(testUseCase.executed).isTrue()
-        val state = stateFlow.first()
-        assertThat(state).isEqualTo(TestState.Loading)
+
+            store.stateFlow.test(testCoroutineScope) {
+                assertValueAt(0, TestState.Loading)
+                assertValueAt(1) { it is TestState.DisplayData }
+            }
     }
 
     @Test
-    fun `when LoadData executes successfully, then moves to DisplayData`() = runBlockingTest {
+    fun `performing change ButtonClicked leads to signal ShowMessage`() = runBlockingTest {
         store.perform(TestViewAction.RequestData)
+        store.perform(TestViewAction.ButtonClicked)
 
-        val states = mutableListOf<TestState>()
-        stateFlow.take(2).toList(states)
-        assertThat(states.last()).isInstanceOf(TestState.DisplayData::class.java)
+        store.signalFlow.test(testCoroutineScope) {
+            assertValue(TestSignal.ShowMessage)
+        }
+    }
+
+    @Test
+    fun `never emits the same state twice`() = runBlockingTest {
+        store.stateFlow.test(testCoroutineScope) {
+            store.perform(TestViewAction.RequestData)
+            assertThat(values().last()).isInstanceOf(TestState.DisplayData::class.java)
+            assertThat(valuesCount()).isEqualTo(2)
+
+            // in DisplayData state we map every change to the same state, so this change results in
+            // same state
+            store.perform(TestViewAction.RequestData)
+
+            // verify there're still only 2 states
+            assertThat(valuesCount()).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun `when coroutineScope is canceled, all flows are canceled`() {
+
     }
 
     sealed class TestState : SkadiState {
@@ -83,6 +110,13 @@ internal class StoreTest {
     sealed class TestViewAction : SkadiChange {
 
         object RequestData : TestViewAction()
+
+        object ButtonClicked : TestViewAction()
+    }
+
+    sealed class TestSignal {
+
+        object ShowMessage : TestSignal()
     }
 
     private class TestUseCase {

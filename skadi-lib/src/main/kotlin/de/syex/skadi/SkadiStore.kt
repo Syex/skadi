@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
@@ -98,9 +99,10 @@ import kotlinx.coroutines.launch
  * @param coroutineScope A [CoroutineScope] where all `coroutines` started by this `store` should run in.
  */
 @Suppress("EXPERIMENTAL_API_USAGE")
-class SkadiStore<State, Action>(
+class SkadiStore<State, Action, Signal>(
     initialState: State,
-    private val reducer: (State, SkadiChange) -> SkadiEffect<State, Action>,
+    private val reducer: (State, SkadiChange) -> SkadiEffect<State, Action, Signal>,
+    // todo make optional
     private val actions: suspend (Action) -> SkadiChange,
     private val coroutineScope: CoroutineScope
 ) where State : SkadiState {
@@ -111,13 +113,19 @@ class SkadiStore<State, Action>(
      * This is a backing property, because otherwise you could modify the [state] from outside of this class.
      * [stateFlow] is read only.
      */
-    private val _stateChannel = Channel<State>()
+    private val _stateChannel = Channel<State>(1)
+
+    private val _signalChannel = Channel<Signal>()
 
     /**
      * Observe this [Flow] to be notified whenever the internal [state] changes.
      */
-    val stateFlow: Flow<State> = flow {
-        for (state in _stateChannel) emit(state)
+    val stateFlow: Flow<State> get() = _stateChannel.consumeAsFlow()
+
+
+    // todo check if consumeAsFlow fixes signal in acitivty
+    val signalFlow: Flow<Signal> = flow {
+        for (signal in _signalChannel) emit(signal)
     }
 
     private var state: State = initialState
@@ -128,11 +136,13 @@ class SkadiStore<State, Action>(
      */
     private val changeActor = coroutineScope.actor<SkadiChange> {
         for (change in channel) {
-            val (newState, sideEffects) = reducer(state, change)
-            state = newState
-            coroutineScope.launch { _stateChannel.send(newState) }
+            val (newState, actions, signals) = reducer(state, change)
 
-            performSideEffect(sideEffects)
+            if (state != newState) coroutineScope.launch { _stateChannel.send(newState) }
+            state = newState
+
+            performSideEffect(actions)
+            sendSignals(signals)
         }
     }
 
@@ -148,6 +158,14 @@ class SkadiStore<State, Action>(
         }
     }
 
+    private fun sendSignals(signals: List<Signal>) {
+        for (signal in signals) {
+            coroutineScope.launch {
+                _signalChannel.send(signal)
+            }
+        }
+    }
+
     /**
      * Performs the given [SkadiChange], passing it along with the current [state] to the [reducer].
      */
@@ -156,7 +174,8 @@ class SkadiStore<State, Action>(
     }
 
     /**
-     * Performs a single action, not using the [reducer].
+     * Performs a single action, not using the [reducer]. This is basically a shortcut to change
+     * the current `state`, as the `action` can lead to a new `state`.
      */
     fun performAction(action: Action) {
         performSideEffect(listOf(action))
