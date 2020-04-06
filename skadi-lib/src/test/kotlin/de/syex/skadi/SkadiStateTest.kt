@@ -16,6 +16,18 @@ internal class SkadiStateTest {
     }
 
     @Test
+    fun `calling same on a state with actions and signals sets these actions and signals`() {
+        val state = TestSkadiState()
+
+        val actions = listOf(TestSkadiAction())
+        val signals = listOf(TestSkadiSignal())
+        val effect = state.same(actions, signals)
+        assertThat(effect.state).isEqualTo(state)
+        assertThat(effect.actions).isEqualTo(actions)
+        assertThat(effect.signals).isEqualTo(signals)
+    }
+
+    @Test
     fun `calling signal on a state creates an effect with same state and that signal`() {
         val state = TestSkadiState()
         val signal = TestSkadiSignal()

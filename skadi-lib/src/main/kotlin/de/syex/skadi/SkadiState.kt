@@ -6,9 +6,20 @@ package de.syex.skadi
 interface SkadiState
 
 /**
- * Creates a [SkadiEffect] that copies the [SkadiState] this method is called on.
+ * Creates a [SkadiEffect] that copies the [SkadiState] this method is called on. You optionally
+ * can pass `actions` and `signals` to execute, though.
  */
-fun <T : SkadiState, Action, Signal> T.same() = state<T, Action, Signal> { this }
+fun <T : SkadiState, Action, Signal> T.same(
+    actions: List<Action> = emptyList(),
+    signals: List<Signal> = emptyList()
+): SkadiEffect<T, Action, Signal> {
+    val state = this
+    return effect {
+        state { state }
+        actions { actions }
+        signals { signals }
+    }
+}
 
 /**
  * Creates a [SkadiEffect] that copies the [SkadiState] this method is called on and sets the single

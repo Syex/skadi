@@ -15,17 +15,23 @@ internal class StoreTest {
     private val store = SkadiStore<TestState, TestAction, TestSignal>(
         initialState = TestState.Init,
         reducer = { state: TestState, change: SkadiChange ->
-            when {
-                state == TestState.Init && change == TestViewAction.RequestData -> effect {
-                    state { TestState.Loading }
-                    action { TestAction.LoadData }
+            when (state) {
+                TestState.Init -> when (change) {
+                    TestViewAction.RequestData -> effect {
+                        state { TestState.Loading }
+                        action { TestAction.LoadData }
+                    }
+                    else -> state.same()
                 }
-                state == TestState.Loading && change is TestAction.LoadData.Success -> state {
-                    TestState.DisplayData(
-                        change.data
-                    )
+                TestState.Loading -> when (change) {
+                    is TestAction.LoadData.Success -> state {
+                        TestState.DisplayData(
+                            change.data
+                        )
+                    }
+                    else -> state.same()
                 }
-                state is TestState.DisplayData -> {
+                is TestState.DisplayData -> {
                     when (change) {
                         TestViewAction.ButtonClicked -> state.signal(TestSignal.ShowMessage)
                         else -> state.same()
