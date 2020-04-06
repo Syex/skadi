@@ -21,7 +21,7 @@ internal class StoreTest {
                         state { TestState.Loading }
                         action { TestAction.LoadData }
                     }
-                    else -> state.same()
+                    else -> unexpected(state, change)
                 }
                 TestState.Loading -> when (change) {
                     is TestAction.LoadData.Success -> state {
