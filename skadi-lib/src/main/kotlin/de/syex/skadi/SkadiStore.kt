@@ -113,7 +113,7 @@ class SkadiStore<State, Action, Signal>(
      * This is a backing property, because otherwise you could modify the [state] from outside of this class.
      * [stateFlow] is read only.
      */
-    private val _stateChannel = Channel<State>(1)
+    private val _stateChannel = Channel<State>()
 
     private val _signalChannel = Channel<Signal>()
 

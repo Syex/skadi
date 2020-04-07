@@ -3,6 +3,7 @@ package de.syex.skadi
 import com.google.common.truth.Truth.assertThat
 import dev.olog.flow.test.observer.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
@@ -94,8 +95,21 @@ internal class StoreTest {
     }
 
     @Test
-    fun `when coroutineScope is canceled, all flows are canceled`() {
-        store
+    fun `when coroutineScope is canceled, state flow is canceled`() = runBlockingTest {
+        store.stateFlow.test(testCoroutineScope) {
+            assertNotComplete()
+            testCoroutineScope.cancel()
+            assertComplete()
+        }
+    }
+
+    @Test
+    fun `when coroutineScope is canceled, signal flow is canceled`() = runBlockingTest {
+        store.signalFlow.test(testCoroutineScope) {
+            assertNotComplete()
+            testCoroutineScope.cancel()
+            assertComplete()
+        }
     }
 
     sealed class TestState : SkadiState {
