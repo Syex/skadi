@@ -102,8 +102,7 @@ import kotlinx.coroutines.launch
 class SkadiStore<State, Action, Signal>(
     initialState: State,
     private val reducer: (State, SkadiChange) -> SkadiEffect<State, Action, Signal>,
-    // todo make optional
-    private val actions: suspend (Action) -> SkadiChange,
+    private val actions: suspend (Action) -> SkadiChange = unhandledAction(),
     private val coroutineScope: CoroutineScope
 ) where State : SkadiState {
 
@@ -181,4 +180,13 @@ class SkadiStore<State, Action, Signal>(
         performSideEffect(listOf(action))
     }
 
+    companion object {
+
+        /**
+         * Default value if no `actions` are passed. Can only be called if an `action` should be performed, but
+         * no `actions` are defined.
+         */
+        private fun <Action> unhandledAction(): suspend (Action) -> Nothing =
+            { action -> throw IllegalStateException("You didn't specify any actions, but passed $action as a side effect") }
+    }
 }
