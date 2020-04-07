@@ -12,7 +12,7 @@ internal class StoreTest {
 
     private val testCoroutineScope = TestCoroutineScope()
 
-    private val store = SkadiStore<TestState, TestAction, TestSignal>(
+    private val store = SkadiStore(
         initialState = TestState.Init,
         reducer = { state: TestState, change: SkadiChange ->
             when (state) {
@@ -24,17 +24,18 @@ internal class StoreTest {
                     else -> unexpected(state, change)
                 }
                 TestState.Loading -> when (change) {
-                    is TestAction.LoadData.Success -> state {
-                        TestState.DisplayData(
-                            change.data
-                        )
+                    is TestAction.LoadData.Success -> effect {
+                        state { TestState.DisplayData(change.data) }
                     }
                     else -> state.same()
                 }
                 is TestState.DisplayData -> {
                     when (change) {
-                        TestViewAction.ButtonClicked -> state.signal(TestSignal.ShowMessage)
-                        else -> state.same()
+                        TestViewAction.ButtonClicked -> effect {
+                            state { state }
+                            signal { TestSignal.ShowMessage }
+                        }
+                        else -> state.same<TestState, TestAction, TestSignal>()
                     }
                 }
                 else -> throw IllegalStateException()
@@ -56,15 +57,15 @@ internal class StoreTest {
     @Test
     fun `performing ViewAction RequestData goes to Loading state, performs LoadData action, then moves to DisplayData`() =
         runBlockingTest {
-        store.perform(TestViewAction.RequestData)
+            store.perform(TestViewAction.RequestData)
 
-        assertThat(testUseCase.executed).isTrue()
+            assertThat(testUseCase.executed).isTrue()
 
             store.stateFlow.test(testCoroutineScope) {
                 assertValueAt(0, TestState.Loading)
                 assertValueAt(1) { it is TestState.DisplayData }
             }
-    }
+        }
 
     @Test
     fun `performing change ButtonClicked leads to signal ShowMessage`() = runBlockingTest {
@@ -94,7 +95,7 @@ internal class StoreTest {
 
     @Test
     fun `when coroutineScope is canceled, all flows are canceled`() {
-
+        store
     }
 
     sealed class TestState : SkadiState {

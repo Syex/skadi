@@ -3,7 +3,10 @@ package de.syex.skadi.sample
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import de.syex.skadi.*
+import de.syex.skadi.SkadiChange
+import de.syex.skadi.SkadiState
+import de.syex.skadi.SkadiStore
+import de.syex.skadi.effect
 
 class MainViewModel(
     private val loadMovies: LoadMoviesUseCase
@@ -16,12 +19,17 @@ class MainViewModel(
         reducer = { state, change ->
             when (state) {
                 MainViewState.Loading -> if (change is MainViewAction.LoadMovies.Success) {
-                    state { MainViewState.DisplayMovies(change.movies) }
+                    effect {
+                        state { MainViewState.DisplayMovies(change.movies) }
+                    }
                 } else {
                     throw IllegalStateException()
                 }
                 is MainViewState.DisplayMovies -> if (change is MainViewEvent.MovieClicked) {
-                    state.signal(MainViewSignal.ShowToast(change.movie.movieName))
+                    effect {
+                        state { state }
+                        signal { MainViewSignal.ShowToast(change.movie.movieName) }
+                    }
                 } else {
                     throw IllegalStateException()
                 }
