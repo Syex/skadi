@@ -1,17 +1,17 @@
 package de.syex.skadi
 
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 /**
  * A [SkadiStore] manages and controls the state of your application. It reacts on internal or external changes and
  * with the help of the passed `reducer` translates a pair of the current `state` and a `change` to a new `state` with
- * possible `actions` to perform, which may lead to a new `state` with new `actions` to perform.
+ * possible `signals` to publish or `actions` to perform, which may lead to a new `state` with new `actions` to perform.
  *
  * After instantiation, you can interact with the [SkadiStore] via [perform], which takes a subclass of a [SkadiChange].
  * This `change` can e.g. be a button click event:
@@ -107,27 +107,39 @@ class SkadiStore<State, Action, Signal>(
 ) where State : SkadiState {
 
     /**
-     * Internal channel where new states we're moving to are posted to.
+     * Internal channel where new states are posted to.
      *
-     * This is a backing property, because otherwise you could modify the [state] from outside of this class.
-     * [stateFlow] is read only.
+     * This is a backing property, because otherwise one could modify the [state] from outside of this class or close
+     * the channel.
      */
     private val _stateChannel = Channel<State>()
 
+    /**
+     * Internal channel where new signals are posted to.
+     *
+     * This is a backing property, because otherwise one could close the channel.
+     */
     private val _signalChannel = Channel<Signal>()
 
     /**
      * Observe this [Flow] to be notified whenever the internal [state] changes.
      */
-    val stateFlow: Flow<State> get() = _stateChannel.consumeAsFlow()
+    val stateFlow: Flow<State> = flow {
+        for (state in _stateChannel) emit(state)
+    }
 
-
-    // todo check if consumeAsFlow fixes signal in acitivty
+    /**
+     * Observe this [Flow] to be notified whenever the a new `signal` is published.
+     */
     val signalFlow: Flow<Signal> = flow {
         for (signal in _signalChannel) emit(signal)
     }
 
-    private var state: State = initialState
+    /**
+     * The current `state` of this `store`.
+     */
+    var state: State = initialState
+        private set
 
     /**
      * Watches for any incoming [SkadiChange], calls the [reducer], performs its `side effects` and emits the new
@@ -137,11 +149,19 @@ class SkadiStore<State, Action, Signal>(
         for (change in channel) {
             val (newState, actions, signals) = reducer(state, change)
 
-            if (state != newState) coroutineScope.launch { _stateChannel.send(newState) }
+            if (state != newState) publishNewState(newState)
             state = newState
 
             performSideEffect(actions)
             sendSignals(signals)
+        }
+    }
+
+    private fun publishNewState(newState: State) {
+        coroutineScope.launch {
+            if (_stateChannel.isClosedForSend) throw IllegalStateException("State Channel is closed")
+
+            _stateChannel.send(newState)
         }
     }
 
@@ -160,6 +180,8 @@ class SkadiStore<State, Action, Signal>(
     private fun sendSignals(signals: List<Signal>) {
         for (signal in signals) {
             coroutineScope.launch {
+                if (_signalChannel.isClosedForSend) throw IllegalStateException("Signal Channel is closed")
+
                 _signalChannel.send(signal)
             }
         }

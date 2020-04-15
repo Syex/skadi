@@ -3,15 +3,13 @@ package de.syex.skadi.sample
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onCompletion
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,7 +35,8 @@ class MainActivity : AppCompatActivity() {
         viewModel.stateLiveData.observe(this, Observer { renderState(it) })
 
         // why are we not using the same pattern for signals? LiveData per design would emit the
-        // latest value again, that's not what we try to achieve with signals
+        // latest value again, that's not what we try to achieve with signals. Alternatively one could use
+        // SingleLiveData
         lifecycleScope.launchWhenResumed {
             viewModel.skadiStore.signalFlow.collect {
                 ensureActive()
