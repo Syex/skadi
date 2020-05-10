@@ -27,3 +27,6 @@ jobs:
 
       - name: Build & test sample
         run: ./gradlew sample:build
+
+      - name: Bintray upload dry run
+        run: ./gradlew bintrayUpload --dry-run
