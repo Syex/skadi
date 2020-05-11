@@ -75,7 +75,7 @@ bintray {
     key = System.getenv("bintrayApiKey")
     setPublications("skadi")
     override = true
-    pkg = PackageConfig().apply {
+    pkg.apply {
         repo = "skadi"
         name = "skadi"
         setLicenses("Apache-2.0")
