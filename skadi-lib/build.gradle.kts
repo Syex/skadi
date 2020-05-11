@@ -28,9 +28,9 @@ val libDescription = "A Kotlin JVM library featuring a redux-like architecture w
 val libVersion = "0.1.0"
 
 // maven publish plugin
-val sourcesJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get().allSource)
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
@@ -40,7 +40,6 @@ publishing {
             artifactId = "skadi"
             version = libVersion
             from(components["java"])
-            artifact(sourcesJar.get())
 
             pom {
                 name.set("skadi")
