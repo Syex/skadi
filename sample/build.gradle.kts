@@ -25,22 +25,26 @@ androidExtensions {
     isExperimental = true
 }
 
+repositories {
+    // for flow test observer
+    maven { setUrl("https://jitpack.io") }
+}
+
 dependencies {
     // jcenter dep for testing for end users, local dep for testing changes
-//    implementation(project(":skadi-lib"))
-    implementation("de.syex:skadi:0.1.0")
+    implementation(project(":skadi-lib"))
+//    implementation("de.syex:skadi:0.1.0")
 
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Dependencies.coroutines}")
 
-    implementation("com.google.android.material:material:1.2.0-alpha06")
+    implementation("com.google.android.material:material:1.2.0-beta01")
 
     val lifecycleVersion = "2.2.0"
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
 
-    implementation("androidx.constraintlayout:constraintlayout:2.0.0-beta5")
+    implementation("androidx.constraintlayout:constraintlayout:2.0.0-beta6")
 
     implementation("io.coil-kt:coil:0.9.5")
 }
@@ -50,4 +54,5 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Dependencies.coroutines}")
     testImplementation("com.google.truth:truth:${Dependencies.truth}")
     testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("com.github.ologe:flow-test-observer:1.4.1")
 }

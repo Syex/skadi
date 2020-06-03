@@ -56,40 +56,41 @@ internal class StoreIntegrationTest {
 
     @Test
     fun `performing ViewAction RequestData goes to Loading state, performs LoadData action, then moves to DisplayData`() =
-        runBlockingTest {
-            store.perform(TestViewAction.RequestData)
-
-            assertThat(testUseCase.executed).isTrue()
-
+        testCoroutineScope.runBlockingTest {
             store.stateFlow.test(testCoroutineScope) {
-                assertValueAt(0, TestState.Loading)
-                assertValueAt(1) { it is TestState.DisplayData }
+
+                store.perform(TestViewAction.RequestData)
+
+                assertThat(testUseCase.executed).isTrue()
+
+                assertValue { it is TestState.DisplayData }
             }
         }
 
     @Test
-    fun `performing change ButtonClicked leads to signal ShowMessage`() = runBlockingTest {
-        store.perform(TestViewAction.RequestData)
-        store.perform(TestViewAction.ButtonClicked)
+    fun `performing change ButtonClicked leads to signal ShowMessage`() =
+        testCoroutineScope.runBlockingTest {
+            store.perform(TestViewAction.RequestData)
+            store.perform(TestViewAction.ButtonClicked)
 
-        store.signalFlow.test(testCoroutineScope) {
-            assertValue(TestSignal.ShowMessage)
+            store.signalFlow.test(testCoroutineScope) {
+                assertValue(TestSignal.ShowMessage)
+            }
         }
-    }
 
     @Test
-    fun `never emits the same state twice`() = runBlockingTest {
+    fun `never emits the same state twice`() = testCoroutineScope.runBlockingTest {
         store.stateFlow.test(testCoroutineScope) {
             store.perform(TestViewAction.RequestData)
             assertThat(values().last()).isInstanceOf(TestState.DisplayData::class.java)
-            assertThat(valuesCount()).isEqualTo(2)
+            assertThat(valuesCount()).isEqualTo(1)
 
             // in DisplayData state we map every change to the same state, so this change results in
             // same state
             store.perform(TestViewAction.RequestData)
 
             // verify there're still only 2 states
-            assertThat(valuesCount()).isEqualTo(2)
+            assertThat(valuesCount()).isEqualTo(1)
         }
     }
 
