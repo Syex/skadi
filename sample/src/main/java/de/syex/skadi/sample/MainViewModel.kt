@@ -1,37 +1,41 @@
 package de.syex.skadi.sample
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import de.syex.skadi.SkadiChange
-import de.syex.skadi.SkadiState
-import de.syex.skadi.SkadiStore
-import de.syex.skadi.effect
+import de.syex.skadi.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.plus
 
 class MainViewModel(
-    private val loadMovies: LoadMoviesUseCase
+    private val loadMovies: LoadMoviesUseCase,
+    private val coroutineScope: CoroutineScope? = null,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
-
-    val stateLiveData by lazy { skadiStore.stateFlow.asLiveData() }
 
     val skadiStore = SkadiStore<MainViewState, MainViewAction, MainViewSignal>(
         initialState = MainViewState.Loading,
         reducer = { state, change ->
             when (state) {
-                MainViewState.Loading -> if (change is MainViewAction.LoadMovies.Success) {
-                    effect {
-                        state { MainViewState.DisplayMovies(change.movies) }
+                MainViewState.Loading -> when (change) {
+                    is MainViewAction.LoadMovies.Success -> {
+                        effect {
+                            state { MainViewState.DisplayMovies(change.movies) }
+                        }
                     }
-                } else {
-                    throw IllegalStateException()
+                    else -> unexpected(state, change)
                 }
-                is MainViewState.DisplayMovies -> if (change is MainViewEvent.MovieClicked) {
-                    effect {
-                        state { state }
-                        signal { MainViewSignal.ShowToast(change.movie.movieName) }
+                is MainViewState.DisplayMovies -> when (change) {
+                    is MainViewEvent.MovieClicked -> {
+                        // type redundant if using new type inference algorithm
+                        state.signal<MainViewState, MainViewAction, MainViewSignal>(
+                            MainViewSignal.ShowToast(
+                                change.movie.movieName
+                            )
+                        )
                     }
-                } else {
-                    throw IllegalStateException()
+                    else -> unexpected<MainViewState, MainViewAction, MainViewSignal>(state, change)
                 }
             }
         },
@@ -43,10 +47,10 @@ class MainViewModel(
                 }
             }
         },
-        coroutineScope = viewModelScope
+        coroutineScope = (coroutineScope ?: viewModelScope) + dispatcher
     )
 
-    init {
+    fun onViewInit() {
         skadiStore.performAction(MainViewAction.LoadMovies)
     }
 

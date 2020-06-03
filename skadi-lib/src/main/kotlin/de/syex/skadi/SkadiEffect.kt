@@ -11,7 +11,7 @@ data class SkadiEffect<State, Action, Signal>(
 )
 
 /**
- * Shortcut to handle an unexpected [change] in the given [state]. Handling, in this case, meanes
+ * Shortcut to handle an unexpected [change] in the given [state]. Handling, in this case, means
  * it will throw a meaningful exception.
  */
 fun <State : SkadiState, Action, Signal> unexpected(
@@ -19,7 +19,6 @@ fun <State : SkadiState, Action, Signal> unexpected(
     change: SkadiChange
 ): SkadiEffect<State, Action, Signal> {
     throw IllegalStateException(
-        "Encountered an illegal combination of a state and a change. Change " +
-                "$change is not handled in state $state"
+        "Encountered an illegal combination of state $state with change $change"
     )
 }
