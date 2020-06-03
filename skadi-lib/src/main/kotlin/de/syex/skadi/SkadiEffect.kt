@@ -19,7 +19,6 @@ fun <State : SkadiState, Action, Signal> unexpected(
     change: SkadiChange
 ): SkadiEffect<State, Action, Signal> {
     throw IllegalStateException(
-        "Encountered an illegal combination of a state and a change. Change " +
-                "$change is not handled in state $state"
+        "Encountered an illegal combination of state $state with change $change"
     )
 }

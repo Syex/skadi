@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel = ViewModelProvider(this, MainViewModelProvider()).get(MainViewModel::class.java)
-        viewModel.onViewInit()
+        if (savedInstanceState == null) viewModel.onViewInit()
     }
 
     override fun onResume() {
