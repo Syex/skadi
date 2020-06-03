@@ -117,7 +117,8 @@ class SkadiStore<State, Action, Signal>(
     /**
      * Observe this [Flow] to be notified whenever the internal [state] changes.
      *
-     * Current value can be retrieved via [StateFlow.value].
+     * Current value can be retrieved via [StateFlow.value]. The current value will be emitted upon
+     * collection start.
      */
     val stateFlow: StateFlow<State> get() = _stateFlow
 
@@ -129,7 +130,8 @@ class SkadiStore<State, Action, Signal>(
     private val _signalChannel = Channel<Signal>()
 
     /**
-     * Observe this [Flow] to be notified whenever the a new `signal` is published.
+     * Observe this [Flow] to be notified whenever the a new `signal` is published. Only new values
+     * will be emitted to this `Flow`.
      */
     val signalFlow: Flow<Signal> = flow {
         for (signal in _signalChannel) emit(signal)
