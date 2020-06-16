@@ -95,8 +95,9 @@ import kotlinx.coroutines.launch
  * [actions]. This block is called from a `coroutine`, so you can call `suspending` functions here.
  *
  * @param initialState The `state` your application starts with.
- * @param reducer The reducer function with translates tuples of [SkadiState] and [SkadiChange] to a [SkadiEffect]
- * @param actions A function where you define what [SkadiChange] some of your actions should perform.
+ * @param reducer The reducer function with translates tuples of [SkadiState] and [SkadiChange] to a [SkadiEffect].
+ * @param actions A function where you define what [SkadiChange] your actions should perform.
+ * This is called in a new coroutine, so it's safe to call blocking functions.
  * @param coroutineScope A [CoroutineScope] where all `coroutines` started by this `store` should run in.
  * When the scope gets canceled this store cannot be used anymore.
  */
@@ -131,7 +132,7 @@ class SkadiStore<State, Action, Signal>(
 
     /**
      * Observe this [Flow] to be notified whenever the a new `signal` is published. Only new values
-     * will be emitted to this `Flow`.
+     * will be emitted to this `Flow`. Signals can be used as "fire and forget" type of events.
      */
     val signalFlow: Flow<Signal> = flow {
         for (signal in _signalChannel) emit(signal)
