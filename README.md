@@ -22,7 +22,7 @@ dependencies {
 ```
 
 # Terminology
-For a deeper understand of the redux architecture please refer to other blog posts like (this one)[https://jayrambhia.com/blog/kotlin-redux-architecture]. 
+For a deeper understand of the redux architecture please refer to other blog posts like [this one](https://jayrambhia.com/blog/kotlin-redux-architecture). 
 This sections serves as a quick overview of the most important classes you'll have to deal with using *skadi*.
 
 ## SkadiState
