@@ -178,7 +178,7 @@ fun SkadiState.signal(signal: Signal): SkadiEffect
 Shortcut to create a `SkadiEffect` with the same state, only sending the passed `signal`.
 
 # Testing
-In general I recommend using [Flow test observer](ttps://github.com/ologe/flow-test-observer) for
+In general I recommend using [Flow test observer](https://github.com/ologe/flow-test-observer) for
 easier testing of skadi's `stateFlow` and `signalFlow`.
 
 **Important:** Please pay attention, that `StateFlow`, which is used internally to handle states, conflates its values,
