@@ -1,5 +1,5 @@
 ![](https://github.com/Syex/skadi/workflows/skadi%20ci/badge.svg?branch=master)
-[ ![Download](https://api.bintray.com/packages/syex/skadi/skadi/images/download.svg?version=unspecified) ](https://bintray.com/syex/skadi/skadi/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/syex/skadi/skadi/images/download.svg) ](https://bintray.com/syex/skadi/skadi/_latestVersion)
 
 # skadi
 A lightweight, redux-like MVI implementation for the JVM using Kotlin coroutines. 
