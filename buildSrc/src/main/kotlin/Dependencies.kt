@@ -1,6 +1,6 @@
 object Dependencies {
 
-    const val coroutines = "1.3.8"
+    const val coroutines = "1.3.9"
 
     // testing
     const val jUnit = "5.5.2"
