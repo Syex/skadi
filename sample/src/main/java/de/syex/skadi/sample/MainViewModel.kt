@@ -29,13 +29,13 @@ class MainViewModel(
                 is MainViewState.DisplayMovies -> when (change) {
                     is MainViewEvent.MovieClicked -> {
                         // type redundant if using new type inference algorithm
-                        state.signal<MainViewState, MainViewAction, MainViewSignal>(
+                        state.signal(
                             MainViewSignal.ShowToast(
                                 change.movie.movieName
                             )
                         )
                     }
-                    else -> unexpected<MainViewState, MainViewAction, MainViewSignal>(state, change)
+                    else -> unexpected(state, change)
                 }
             }
         },

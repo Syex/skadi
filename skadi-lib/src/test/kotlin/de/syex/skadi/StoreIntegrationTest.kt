@@ -38,7 +38,6 @@ internal class StoreIntegrationTest {
                         else -> state.same<TestState, TestAction, TestSignal>()
                     }
                 }
-                else -> throw IllegalStateException()
             }
         },
         actions = { action: TestAction ->

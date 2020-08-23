@@ -44,7 +44,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
 
-    implementation("androidx.constraintlayout:constraintlayout:2.0.0-rc1")
+    implementation("androidx.constraintlayout:constraintlayout:2.0.0")
 
     implementation("io.coil-kt:coil:0.9.5")
 }
