@@ -25,11 +25,6 @@ androidExtensions {
     isExperimental = true
 }
 
-repositories {
-    // for flow test observer
-    maven { setUrl("https://jitpack.io") }
-}
-
 dependencies {
     // jcenter dep for testing for end users, local dep for testing changes
     implementation(project(":skadi-lib"))
