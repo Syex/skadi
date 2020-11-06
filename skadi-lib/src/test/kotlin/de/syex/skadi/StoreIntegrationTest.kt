@@ -1,12 +1,14 @@
 package de.syex.skadi
 
+import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import dev.olog.flow.test.observer.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 @ExperimentalCoroutinesApi
 internal class StoreIntegrationTest {
 
@@ -56,40 +58,47 @@ internal class StoreIntegrationTest {
     @Test
     fun `performing ViewAction RequestData goes to Loading state, performs LoadData action, then moves to DisplayData`() =
         testCoroutineScope.runBlockingTest {
-            store.stateFlow.test(testCoroutineScope) {
-
+            store.stateFlow.test {
+                expectItem() // ignore initial state
                 store.perform(TestViewAction.RequestData)
 
                 assertThat(testUseCase.executed).isTrue()
 
-                assertValue { it is TestState.DisplayData }
+                var state = expectItem()
+                assertThat(state).isEqualTo(TestState.Loading)
+                state = expectItem()
+                assertThat(state).isInstanceOf(TestState.DisplayData::class.java)
             }
         }
 
     @Test
     fun `performing change ButtonClicked leads to signal ShowMessage`() =
         testCoroutineScope.runBlockingTest {
-            store.perform(TestViewAction.RequestData)
-            store.perform(TestViewAction.ButtonClicked)
+            store.signalFlow.test {
+                store.perform(TestViewAction.RequestData)
+                store.perform(TestViewAction.ButtonClicked)
 
-            store.signalFlow.test(testCoroutineScope) {
-                assertValue(TestSignal.ShowMessage)
+                val signal = expectItem()
+                assertThat(signal).isEqualTo(TestSignal.ShowMessage)
             }
         }
 
     @Test
     fun `never emits the same state twice`() = testCoroutineScope.runBlockingTest {
-        store.stateFlow.test(testCoroutineScope) {
+        store.stateFlow.test {
+            expectItem() // ignore initial state
             store.perform(TestViewAction.RequestData)
-            assertThat(values().last()).isInstanceOf(TestState.DisplayData::class.java)
-            assertThat(valuesCount()).isEqualTo(1)
+            var state = expectItem()
+            assertThat(state).isEqualTo(TestState.Loading)
+            state = expectItem()
+            assertThat(state).isInstanceOf(TestState.DisplayData::class.java)
 
             // in DisplayData state we map every change to the same state, so this change results in
             // same state
             store.perform(TestViewAction.RequestData)
 
-            // verify there're still only 2 states
-            assertThat(valuesCount()).isEqualTo(1)
+            // verify there is still only one emitted state
+            expectNoEvents()
         }
     }
 

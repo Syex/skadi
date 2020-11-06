@@ -1,12 +1,7 @@
 package de.syex.skadi
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 /**
@@ -101,7 +96,6 @@ import kotlinx.coroutines.launch
  * @param coroutineScope A [CoroutineScope] where all `coroutines` started by this `store` should run in.
  * When the scope gets canceled this store cannot be used anymore.
  */
-@Suppress("EXPERIMENTAL_API_USAGE")
 class SkadiStore<State, Action, Signal>(
     initialState: State,
     private val reducer: (State, SkadiChange) -> SkadiEffect<State, Action, Signal>,
@@ -116,42 +110,23 @@ class SkadiStore<State, Action, Signal>(
     private val _stateFlow = MutableStateFlow(initialState)
 
     /**
-     * Observe this [Flow] to be notified whenever the internal [state] changes.
+     * Observe this [StateFlow] to be notified whenever the internal [state] changes.
      *
      * Current value can be retrieved via [StateFlow.value]. The current value will be emitted upon
      * collection start.
      */
-    val stateFlow: StateFlow<State> get() = _stateFlow
+    val stateFlow get() = _stateFlow.asStateFlow()
 
     /**
      * Internal channel where new signals are posted to.
-     *
-     * This is a backing property, because otherwise one could close the channel.
      */
-    private val _signalChannel = Channel<Signal>()
+    private val _signalFlow = MutableSharedFlow<Signal>()
 
     /**
-     * Observe this [Flow] to be notified whenever the a new `signal` is published. Only new values
+     * Observe this [SharedFlow] to be notified whenever the a new `signal` is published. Only new values
      * will be emitted to this `Flow`. Signals can be used as "fire and forget" type of events.
      */
-    val signalFlow: Flow<Signal> = flow {
-        for (signal in _signalChannel) emit(signal)
-    }
-
-    /**
-     * Watches for any incoming [SkadiChange], calls the [reducer], performs its `side effects` and emits the new
-     * state.
-     */
-    private val changeActor = coroutineScope.actor<SkadiChange> {
-        for (change in channel) {
-            val (newState, actions, signals) = reducer(_stateFlow.value, change)
-
-            _stateFlow.value = newState
-
-            performSideEffect(actions)
-            sendSignals(signals)
-        }
-    }
+    val signalFlow = _signalFlow.asSharedFlow()
 
     /**
      * Performs all `actions` from [sideEffects] in a new coroutine and [performs][perform] its resulting [SkadiChange].
@@ -167,19 +142,20 @@ class SkadiStore<State, Action, Signal>(
 
     private fun sendSignals(signals: List<Signal>) {
         for (signal in signals) {
-            coroutineScope.launch {
-                if (_signalChannel.isClosedForSend) throw IllegalStateException("Signal Channel is closed")
-
-                _signalChannel.send(signal)
-            }
+            coroutineScope.launch { _signalFlow.emit(signal) }
         }
     }
 
     /**
      * Performs the given [SkadiChange], passing it along with the current [state] to the [reducer].
      */
-    fun perform(change: SkadiChange) {
-        coroutineScope.launch { changeActor.send(change) }
+    fun perform(change: SkadiChange) = coroutineScope.launch {
+        val (newState, actions, signals) = reducer(_stateFlow.value, change)
+
+        _stateFlow.value = newState
+
+        performSideEffect(actions)
+        sendSignals(signals)
     }
 
     /**

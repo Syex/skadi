@@ -17,7 +17,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:${Dependencies.jUnit}")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Dependencies.coroutines}")
     testImplementation("com.google.truth:truth:${Dependencies.truth}")
-    testImplementation("com.github.ologe:flow-test-observer:${Dependencies.flowTestObserver}")
+    testImplementation("app.cash.turbine:turbine:${Dependencies.turbine}")
 }
 
 val siteUrl = "https://github.com/Syex/skadi"

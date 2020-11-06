@@ -53,5 +53,5 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Dependencies.coroutines}")
     testImplementation("com.google.truth:truth:${Dependencies.truth}")
     testImplementation("io.mockk:mockk:1.10.0")
-    testImplementation("com.github.ologe:flow-test-observer:${Dependencies.flowTestObserver}")
+    testImplementation("app.cash.turbine:turbine:${Dependencies.turbine}")
 }
