@@ -5,5 +5,5 @@ object Dependencies {
     // testing
     const val jUnit = "5.7.0"
     const val truth = "1.1"
-    const val flowTestObserver = "1.4.1"
+    const val turbine = "0.2.1"
 }

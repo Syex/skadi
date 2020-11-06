@@ -1,7 +1,7 @@
 package de.syex.skadi.sample
 
+import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import dev.olog.flow.test.observer.test
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -10,8 +10,10 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
+import kotlin.time.ExperimentalTime
 
 
+@ExperimentalTime
 @ExperimentalCoroutinesApi
 class MainViewModelTest {
 
@@ -26,13 +28,12 @@ class MainViewModelTest {
 
     @Test
     fun `on viewInit() executes loadMovies() and goes to DisplayMovies state`() = runBlockingTest {
-        val flow = viewModel.skadiStore.stateFlow
-        flow.test(this) {
-            assertThat(flow.value).isEqualTo(MainViewState.Loading)
+        viewModel.skadiStore.stateFlow.test {
+            assertThat(expectItem()).isEqualTo(MainViewState.Loading)
             viewModel.onViewInit()
 
             coVerify { loadMovies.execute() }
-            assertValue(MainViewState.DisplayMovies(movies))
+            assertThat(expectItem()).isEqualTo(MainViewState.DisplayMovies(movies))
         }
     }
 }
