@@ -4,11 +4,6 @@ plugins {
     id("com.jfrog.bintray") version "1.8.5"
 }
 
-repositories {
-    // for flow test observer
-    maven { setUrl("https://jitpack.io") }
-}
-
 dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Dependencies.coroutines}")
 }

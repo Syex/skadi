@@ -4,9 +4,7 @@
 # skadi
 A lightweight, redux-like MVI implementation for the JVM using Kotlin coroutines. 
 
-The library internally uses [StateFlow](https://github.com/Kotlin/kotlinx.coroutines/issues/1973), 
-which is in experimental state. Therefore, consider the state of this library as experimental, too.
-I highly recommend **not** using this in production (yet). 
+The library internally uses [StateFlow](https://github.com/Kotlin/kotlinx.coroutines/issues/1973).
 
 # Download
 This library can be found on `jcenter()` and depends on the `kotlinx-coroutines-core` artifact.
@@ -178,9 +176,5 @@ fun SkadiState.signal(signal: Signal): SkadiEffect
 Shortcut to create a `SkadiEffect` with the same state, only sending the passed `signal`.
 
 # Testing
-In general I recommend using [Flow test observer](https://github.com/ologe/flow-test-observer) for
+In general, I recommend using [Turbine flow testing](https://github.com/cashapp/turbine) for
 easier testing of skadi's `stateFlow` and `signalFlow`.
-
-**Important:** Please pay attention, that `StateFlow`, which is used internally to handle states, conflates its values,
-meaning, fast state changes won't emit every change. E.g. if you test state transition from _a_ to
-_b_ to _c_ then you will only be able to collect _c_, but not _b_.
