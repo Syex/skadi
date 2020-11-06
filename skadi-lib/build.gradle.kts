@@ -24,7 +24,7 @@ val siteUrl = "https://github.com/Syex/skadi"
 val vcsUrl = "https://github.com/Syex/skadi.git"
 val libDescription = "A Kotlin JVM library featuring a redux-like architecture with coroutines"
 
-val libVersion = "0.2.0"
+val libVersion = "0.3.0"
 
 // maven publish plugin
 java {
