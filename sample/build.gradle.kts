@@ -35,7 +35,6 @@ dependencies {
     implementation(project(":skadi-lib"))
 //    implementation("de.syex:skadi:0.1.0")
 
-    implementation(kotlin("stdlib-jdk8"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Dependencies.coroutines}")
 
     implementation("com.google.android.material:material:1.2.0")
