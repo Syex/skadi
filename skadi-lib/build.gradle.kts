@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm")
     `maven-publish`
-    id("com.jfrog.bintray") version "1.8.5"
+    signing
 }
 
 dependencies {
@@ -19,18 +19,33 @@ val siteUrl = "https://github.com/Syex/skadi"
 val vcsUrl = "https://github.com/Syex/skadi.git"
 val libDescription = "A Kotlin JVM library featuring a redux-like architecture with coroutines"
 
-val libVersion = "0.3.0"
+val libVersion = "0.4.0"
 
-// maven publish plugin
+@Suppress("UnstableApiUsage")
 java {
     withJavadocJar()
     withSourcesJar()
 }
 
 publishing {
+    repositories {
+        val releasesRepoUrl = "https://s01.oss.sonatype.org/content/repositories/releases"
+        val snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+        val repoUrl = uri(if (libVersion.endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+
+        maven(url = repoUrl) {
+            authentication {
+                credentials {
+                    username = System.getenv("OSS_SONATYPE_USERNAME")
+                    password = System.getenv("OSS_SONATYPE_PASSWORD")
+                }
+            }
+        }
+    }
+
     publications {
         create<MavenPublication>("skadi") {
-            group = "de.syex"
+            group = "io.github.syex"
             artifactId = "skadi"
             version = libVersion
             from(components["java"])
@@ -63,23 +78,10 @@ publishing {
     }
 }
 
-// bintray plugin
-bintray {
-    user = System.getenv("bintrayUser")
-    key = System.getenv("bintrayApiKey")
-    setPublications("skadi")
-    override = true
-    pkg.apply {
-        repo = "skadi"
-        name = "skadi"
-        setLicenses("Apache-2.0")
-        vcsUrl = vcsUrl
-        publish = true
-        desc = libDescription
-        websiteUrl = siteUrl
-
-        version.apply {
-            name = libVersion
-        }
-    }
+@Suppress("UnstableApiUsage")
+signing {
+    val signingPrivateKey = System.getenv("MAVEN_GPG_PRIVATE_KEY")
+    val signingPassword = System.getenv("MAVEN_GPG_PASSPHRASE")
+    useInMemoryPgpKeys(signingPrivateKey, signingPassword)
+    sign(publishing.publications["skadi"])
 }

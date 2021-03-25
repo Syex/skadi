@@ -1,5 +1,5 @@
 ![](https://github.com/Syex/skadi/workflows/skadi%20ci/badge.svg?branch=master)
-[ ![Download](https://api.bintray.com/packages/syex/skadi/skadi/images/download.svg) ](https://bintray.com/syex/skadi/skadi/_latestVersion)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.syex/skadi/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.syex/skadi)
 
 # skadi
 A lightweight, redux-like MVI implementation for the JVM using Kotlin coroutines. 
@@ -7,15 +7,15 @@ A lightweight, redux-like MVI implementation for the JVM using Kotlin coroutines
 The library internally uses [StateFlow](https://github.com/Kotlin/kotlinx.coroutines/issues/1973).
 
 # Download
-This library can be found on `jcenter()` and depends on the `kotlinx-coroutines-core` artifact.
+This library can be found on `mavenCentral()` and depends on the `kotlinx-coroutines-core` artifact.
 
 ```groovy
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    implementation "de.syex:skadi:$version"
+    implementation("io.github.syex:skadi:$version")
 }
 ```
 
