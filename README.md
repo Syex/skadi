@@ -1,5 +1,5 @@
 ![](https://github.com/Syex/skadi/workflows/skadi%20ci/badge.svg?branch=master)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.syex/skadi/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.syex/skadi)
+![](https://img.shields.io/github/v/release/Syex/skadi)
 
 # skadi
 A lightweight, redux-like MVI implementation for the JVM using Kotlin coroutines. 
