@@ -8,7 +8,7 @@ android {
     compileSdkVersion(30)
 
     defaultConfig {
-        applicationId = "de.syex.skadi.sample"
+        applicationId = "io.github.syex.skadi.sample"
         minSdkVersion(23)
         targetSdkVersion(30)
         versionCode = 1
@@ -26,9 +26,9 @@ androidExtensions {
 }
 
 dependencies {
-    // jcenter dep for testing for end users, local dep for testing changes
+    // decide whether to use local dep for testing changes or latest released version
     implementation(project(":skadi-lib"))
-//    implementation("de.syex:skadi:0.1.0")
+//    implementation("io.github.syex:skadi:0.1.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Dependencies.coroutines}")
 

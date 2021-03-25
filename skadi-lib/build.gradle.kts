@@ -30,7 +30,7 @@ java {
 publishing {
     publications {
         create<MavenPublication>("skadi") {
-            group = "de.syex"
+            group = "io.github.syex"
             artifactId = "skadi"
             version = libVersion
             from(components["java"])
