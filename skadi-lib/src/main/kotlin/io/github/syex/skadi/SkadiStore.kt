@@ -118,7 +118,7 @@ class SkadiStore<State, Action, Signal>(
     val stateFlow get() = _stateFlow.asStateFlow()
 
     /**
-     * Internal channel where new signals are posted to.
+     * Internal flow where new signals are posted to.
      */
     private val _signalFlow = MutableSharedFlow<Signal>()
 
