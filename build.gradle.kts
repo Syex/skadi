@@ -27,13 +27,17 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit"))
-                implementation("junit:junit:4.13.2")
+                implementation("org.junit.jupiter:junit-jupiter:${Dependencies.jUnit}")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Dependencies.coroutines}")
+            }
+
+            tasks.named("jvmTest", Test::class.java) {
+                useJUnitPlatform()
+                testLogging { events("passed", "skipped", "failed") }
             }
         }
     }
 }
-
 
 buildscript {
     repositories {
@@ -56,11 +60,8 @@ project(":sample") {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
-    // Enable JUnit5
     tasks.withType(Test::class.java) {
         useJUnitPlatform()
-        testLogging {
-            events("passed", "skipped", "failed")
-        }
+        testLogging { events("passed", "skipped", "failed") }
     }
 }
