@@ -50,7 +50,7 @@ buildscript {
     }
 }
 
-project(":sample") {
+project(":androidSample") {
     repositories {
         google()
         jcenter()
