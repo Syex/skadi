@@ -27,8 +27,8 @@ androidExtensions {
 
 dependencies {
     // decide whether to use local dep for testing changes or latest released version
-    implementation(project(":skadi-lib"))
-//    implementation("io.github.syex:skadi:0.1.0")
+//    implementation(project(":skadi-lib"))
+    implementation("io.github.syex:skadi:0.4.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Dependencies.coroutines}")
 
