@@ -9,7 +9,17 @@ repositories {
 
 kotlin {
     jvm()
+    iosArm32()
+    iosArm64()
     iosX64()
+    linuxX64()
+    macosX64()
+    mingwX64()
+    tvosArm64()
+    tvosX64()
+    watchosArm32()
+    watchosArm64()
+    watchosX86()
 
     sourceSets {
         val commonMain by getting {
