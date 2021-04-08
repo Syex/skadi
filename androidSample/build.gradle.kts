@@ -25,10 +25,19 @@ androidExtensions {
     isExperimental = true
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java) {
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
+}
+
+tasks.withType(Test::class.java) {
+    useJUnitPlatform()
+    testLogging { events("passed", "skipped", "failed") }
+}
+
 dependencies {
     // decide whether to use local dep for testing changes or latest released version
-//    implementation(project(":skadi-lib"))
-    implementation("io.github.syex:skadi:0.4.0")
+    implementation(project(":skadi-lib"))
+//    implementation("io.github.syex:skadi:0.4.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Dependencies.coroutines}")
 
