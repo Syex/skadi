@@ -36,8 +36,8 @@ tasks.withType(Test::class.java) {
 
 dependencies {
     // decide whether to use local dep for testing changes or latest released version
-    implementation(project(":skadi-lib"))
-//    implementation("io.github.syex:skadi:0.4.0")
+    implementation(project(":skadi"))
+//    implementation("io.github.syex:skadi-android-debug:0.5.0-SNAPSHOT")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Dependencies.coroutines}")
 

@@ -1,2 +1,2 @@
 rootProject.name = "skadi"
-include("skadi-lib", "androidSample")
+include("skadi", "androidSample")
