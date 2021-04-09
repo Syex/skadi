@@ -1,8 +1,9 @@
 package io.github.syex.skadi
 
-import com.google.common.truth.Truth.assertThat
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class EffectBuilderTest {
 
@@ -11,9 +12,9 @@ class EffectBuilderTest {
         val testState = TestSkadiState()
         val effect = state<TestSkadiState, Nothing, Nothing> { testState }
 
-        assertThat(effect.state).isEqualTo(testState)
-        assertThat(effect.actions).isEmpty()
-        assertThat(effect.signals).isEmpty()
+        assertEquals(effect.state, testState)
+        assertTrue(effect.actions.isEmpty())
+        assertTrue(effect.signals.isEmpty())
     }
 
     @Test
@@ -27,9 +28,9 @@ class EffectBuilderTest {
             signals { signals }
         }
 
-        assertThat(effect.state).isEqualTo(testState)
-        assertThat(effect.actions).isEqualTo(actions)
-        assertThat(effect.signals).isEqualTo(signals)
+        assertEquals(effect.state, testState)
+        assertEquals(effect.actions, actions)
+        assertEquals(effect.signals, signals)
     }
 
     @Test
@@ -41,9 +42,9 @@ class EffectBuilderTest {
             action { action }
         }
 
-        assertThat(effect.state).isEqualTo(testState)
-        assertThat(effect.actions).isEqualTo(listOf(action))
-        assertThat(effect.signals).isEmpty()
+        assertEquals(effect.state, testState)
+        assertEquals(effect.actions, listOf(action))
+        assertTrue(effect.signals.isEmpty())
     }
 
     @Test
@@ -55,15 +56,15 @@ class EffectBuilderTest {
             signal { signal }
         }
 
-        assertThat(effect.state).isEqualTo(testState)
-        assertThat(effect.actions).isEmpty()
-        assertThat(effect.signals).isEqualTo(listOf(signal))
+        assertEquals(effect.state, testState)
+        assertTrue(effect.actions.isEmpty())
+        assertEquals(effect.signals, listOf(signal))
     }
 
     @Test
     fun `dsl method effect() throws if no state is passed`() {
         val action = TestSkadiAction()
-        assertThrows<IllegalStateException> {
+        assertFailsWith<IllegalStateException> {
             effect<TestSkadiState, TestSkadiAction, Nothing> {
                 action { action }
             }

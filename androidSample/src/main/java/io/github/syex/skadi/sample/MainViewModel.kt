@@ -10,8 +10,8 @@ import kotlinx.coroutines.plus
 
 class MainViewModel(
     private val loadMovies: LoadMoviesUseCase,
-    private val coroutineScope: CoroutineScope? = null,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+    coroutineScope: CoroutineScope? = null,
+    dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
 
     val skadiStore = SkadiStore<MainViewState, MainViewAction, MainViewSignal>(

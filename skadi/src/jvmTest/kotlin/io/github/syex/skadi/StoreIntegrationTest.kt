@@ -1,11 +1,12 @@
 package io.github.syex.skadi
 
 import app.cash.turbine.test
-import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
@@ -62,12 +63,12 @@ internal class StoreIntegrationTest {
                 expectItem() // ignore initial state
                 store.perform(TestViewAction.RequestData)
 
-                assertThat(testUseCase.executed).isTrue()
+                assertTrue(testUseCase.executed)
 
                 var state = expectItem()
-                assertThat(state).isEqualTo(TestState.Loading)
+                assertEquals(state, TestState.Loading)
                 state = expectItem()
-                assertThat(state).isInstanceOf(TestState.DisplayData::class.java)
+                assertTrue { state is TestState.DisplayData }
             }
         }
 
@@ -79,7 +80,7 @@ internal class StoreIntegrationTest {
                 store.perform(TestViewAction.ButtonClicked)
 
                 val signal = expectItem()
-                assertThat(signal).isEqualTo(TestSignal.ShowMessage)
+                assertEquals(signal, TestSignal.ShowMessage)
             }
         }
 
@@ -89,9 +90,9 @@ internal class StoreIntegrationTest {
             expectItem() // ignore initial state
             store.perform(TestViewAction.RequestData)
             var state = expectItem()
-            assertThat(state).isEqualTo(TestState.Loading)
+            assertEquals(state, TestState.Loading)
             state = expectItem()
-            assertThat(state).isInstanceOf(TestState.DisplayData::class.java)
+            assertTrue { state is TestState.DisplayData }
 
             // in DisplayData state we map every change to the same state, so this change results in
             // same state

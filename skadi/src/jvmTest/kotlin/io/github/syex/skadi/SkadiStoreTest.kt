@@ -1,9 +1,10 @@
 package io.github.syex.skadi
 
-import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 internal class SkadiStoreTest {
@@ -25,12 +26,14 @@ internal class SkadiStoreTest {
     @Test
     fun `performing a side effect although no actions are defined throws an exception`() {
         // TestCoroutineScope swallows the thrown exception, see https://github.com/Kotlin/kotlinx.coroutines/issues/1205
-        assertThat(testCoroutineScope.uncaughtExceptions).isEmpty()
+        assertTrue(testCoroutineScope.uncaughtExceptions.isEmpty())
 
         store.performAction(TestSkadiAction())
 
-        assertThat(testCoroutineScope.uncaughtExceptions).hasSize(1)
-        assertThat(testCoroutineScope.uncaughtExceptions.first()).isInstanceOf(IllegalStateException::class.java)
+        assertEquals(testCoroutineScope.uncaughtExceptions.size, 1)
+        assertTrue {
+            testCoroutineScope.uncaughtExceptions.first() is IllegalStateException
+        }
     }
 
     private sealed class TestState : SkadiState {

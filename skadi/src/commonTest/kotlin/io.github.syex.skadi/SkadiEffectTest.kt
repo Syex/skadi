@@ -1,13 +1,14 @@
 package io.github.syex.skadi
 
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import kotlin.test.assertFailsWith
+
 
 internal class SkadiEffectTest {
 
     @Test()
-    fun `method unexpected throws an enxception`() {
-        assertThrows<IllegalStateException> {
+    fun `method unexpected throws an exception`() {
+        assertFailsWith<IllegalStateException> {
             unexpected<TestSkadiState, TestSkadiAction, TestSkadiSignal>(
                 TestSkadiState(),
                 TestSkadiChange()

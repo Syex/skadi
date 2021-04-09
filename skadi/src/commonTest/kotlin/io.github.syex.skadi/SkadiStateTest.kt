@@ -1,7 +1,9 @@
 package io.github.syex.skadi
 
-import com.google.common.truth.Truth.assertThat
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
 
 internal class SkadiStateTest {
 
@@ -10,9 +12,9 @@ internal class SkadiStateTest {
         val state = TestSkadiState()
 
         val effect = state.same<TestSkadiState, Nothing, Nothing>()
-        assertThat(effect.state).isEqualTo(state)
-        assertThat(effect.actions).isEmpty()
-        assertThat(effect.signals).isEmpty()
+        assertEquals(effect.state, state)
+        assertTrue(effect.actions.isEmpty())
+        assertTrue(effect.signals.isEmpty())
     }
 
     @Test
@@ -22,9 +24,9 @@ internal class SkadiStateTest {
         val actions = listOf(TestSkadiAction())
         val signals = listOf(TestSkadiSignal())
         val effect = state.same(actions, signals)
-        assertThat(effect.state).isEqualTo(state)
-        assertThat(effect.actions).isEqualTo(actions)
-        assertThat(effect.signals).isEqualTo(signals)
+        assertEquals(effect.state, state)
+        assertEquals(effect.actions, actions)
+        assertEquals(effect.signals, signals)
     }
 
     @Test
@@ -33,8 +35,8 @@ internal class SkadiStateTest {
         val signal = TestSkadiSignal()
 
         val effect = state.signal<TestSkadiState, Nothing, TestSkadiSignal>(signal)
-        assertThat(effect.state).isEqualTo(state)
-        assertThat(effect.signals).isEqualTo(listOf(signal))
-        assertThat(effect.actions).isEmpty()
+        assertEquals(effect.state, state)
+        assertTrue(effect.actions.isEmpty())
+        assertEquals(effect.signals, listOf(signal))
     }
 }
